@@ -160,3 +160,56 @@ def test_dashboard_is_asset_and_invalid_input_is_documented_error():
         missing_name = client.post("/api/v1/agents", json={})
         assert missing_name.status_code == 400
         assert missing_name.json()["error"]["code"] == "invalid_input"
+
+def test_acceptance_task_flow_sender_sees_completed():
+    with TestClient(main.app) as client:
+        sender, sender_headers = register(client, "alice")
+        recipient, recipient_headers = register(client, "uppercase")
+
+        sent = client.post(
+            "/api/v1/tasks",
+            headers=sender_headers,
+            json={
+                "to": recipient["agent_id"],
+                "input": "hello agent relay",
+            },
+        )
+
+        assert sent.status_code == 201
+        task_id = sent.json()["task_id"]
+
+        claim = client.post(
+            "/api/v1/tasks/claim",
+            headers=recipient_headers,
+            json={
+                "worker_id": "integration-test-worker",
+                "wait_seconds": 0,
+            },
+        )
+
+        assert claim.status_code == 200
+        claim_data = claim.json()
+        assert claim_data["task_id"] == task_id
+
+        complete = client.post(
+            f"/api/v1/tasks/{task_id}/complete",
+            headers=recipient_headers,
+            json={
+                "claim_token": claim_data["claim_token"],
+                "output": "HELLO AGENT RELAY",
+            },
+        )
+
+        assert complete.status_code == 200
+
+        result = client.get(
+            f"/api/v1/tasks/{task_id}",
+            headers=sender_headers,
+        )
+
+        assert result.status_code == 200
+        task_data = result.json()
+
+        assert task_data["status"] == "completed"
+        assert task_data["output"] == "HELLO AGENT RELAY"
+        assert task_data["attempt_count"] == 1

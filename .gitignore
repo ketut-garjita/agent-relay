@@ -6,3 +6,9 @@
 __pycache__/
 .pytest_cache/
 *-credentials.json
+# Kubernetes secrets
+k8s/postgres-secret.yaml
+
+
+# Local environment variables
+.env

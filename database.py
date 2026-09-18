@@ -177,28 +177,26 @@ def db_session() -> Generator[Session, None, None]:
 
 @contextmanager
 def immediate_transaction() -> Generator[Session, None, None]:
-    """Run one SQLite writer transaction before selecting or changing work.
+    """Run an atomic transaction for task operations."""
 
-    SQLite does not support PostgreSQL's ``FOR UPDATE SKIP LOCKED``.  A
-    ``BEGIN IMMEDIATE`` writer reservation serializes claims (and recovery or
-    terminal submissions) across API processes, giving each task one active
-    lease.  This is the intentionally isolated seam for a future PostgreSQL
-    implementation.
-    """
+    if _is_sqlite(DATABASE_URL):
+        connection = engine.connect()
+        session = Session(bind=connection, expire_on_commit=False, autoflush=True)
 
-    connection = engine.connect()
-    session = Session(bind=connection, expire_on_commit=False, autoflush=True)
-    try:
-        connection.exec_driver_sql("BEGIN IMMEDIATE")
-        yield session
-        session.flush()
-        connection.commit()
-    except Exception:
-        connection.rollback()
-        raise
-    finally:
-        session.close()
-        connection.close()
+        try:
+            connection.exec_driver_sql("BEGIN IMMEDIATE")
+            yield session
+            session.flush()
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
+        finally:
+            session.close()
+            connection.close()
+    else:
+        with SessionLocal.begin() as session:
+            yield session
 
 
 def recover_expired_in_session(db: Session, now: datetime) -> int:

@@ -139,19 +139,25 @@ def create_task(sender_id: str, recipient_id: str, input_text: str, idempotency_
         db.flush()
         return {"task_id": task.id, "status": task.status}
 
-
 def claim_one(agent_id: str, worker_id: str | None) -> dict[str, Any] | None:
     with immediate_transaction() as db:
         now = utcnow()
         recover_expired_in_session(db, now)
+
         task = db.scalar(
             select(Task)
-            .where(Task.recipient_id == agent_id, Task.status == "queued")
+            .where(
+                Task.recipient_id == agent_id,
+                Task.status == "queued",
+            )
             .order_by(Task.created_at, Task.id)
+            .with_for_update(skip_locked=True)
             .limit(1)
         )
+
         if task is None:
             return None
+
         if task.attempt_count >= MAX_ATTEMPTS:
             task.status = "failed"
             task.error = "attempts_exhausted"
@@ -162,6 +168,7 @@ def claim_one(agent_id: str, worker_id: str | None) -> dict[str, Any] | None:
         task.status = "processing"
         task.attempt_count += 1
         lease_expires = as_db_time(now + timedelta(seconds=LEASE_SECONDS))
+
         db.add(
             Attempt(
                 task_id=task.id,
@@ -176,7 +183,9 @@ def claim_one(agent_id: str, worker_id: str | None) -> dict[str, Any] | None:
                 terminal_payload_hash=None,
             )
         )
+
         db.flush()
+
         return {
             "task_id": task.id,
             "from": task.sender_id,
@@ -185,7 +194,6 @@ def claim_one(agent_id: str, worker_id: str | None) -> dict[str, Any] | None:
             "claim_token": claim_token,
             "lease_expires_at": iso_time(lease_expires),
         }
-
 
 def _find_attempt_for_token(db: Session, task_id: str, token: str) -> Attempt | None:
     return db.scalar(
