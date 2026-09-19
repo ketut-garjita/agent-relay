@@ -60,7 +60,7 @@ tests/           Automated test suite
 k8s/             Kubernetes manifests
 .github/
 └── workflows/
-    └── ci.yml   CI/CD workflow
+    └── ci-cd.yml   CI/CD workflow
 ```
 
 ---
@@ -464,20 +464,22 @@ Kubernetes
 The application can be accessed locally through Kubernetes port forwarding:
 
 ```bash
-kubectl port-forward service/agent-relay 8000:8000
+kubectl port-forward service/agent-relay 18000:8000
 ```
 
 Then verify:
 
 ```bash
-curl http://127.0.0.1:8000/health
+curl http://127.0.0.1:18000/health
 ```
 
 The dashboard is available at:
 
 ```text
-http://127.0.0.1:8000/
+http://127.0.0.1:18000/
 ```
+![Agent Relay v2](assets/agent-relay-v2.png)
+![Agent Relay v2/docs](assets/agent-relay-v2-docs.png)
 
 The Kubernetes deployment was successfully verified by accessing the dashboard through the port-forwarded service.
 
@@ -589,7 +591,7 @@ This provides an application-level deployment check rather than only checking wh
 
 ---
 
-# #14. Failure and Recovery
+## 14. Failure and Recovery
 
 The system supports leased task claims so that work is not permanently lost when a worker disappears.
 
@@ -700,7 +702,7 @@ A simplified repository structure is:
 agent-relay/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml
+│       └── ci-cd.yml
 │
 ├── k8s/
 │   ├── agent-relay-deployment.yaml
@@ -766,19 +768,19 @@ kubectl get pvc
 
 kubectl rollout status deployment/agent-relay
 
-kubectl port-forward service/agent-relay 8000:8000
+kubectl port-forward service/agent-relay 18000:8000
 ```
 
 Then:
 
 ```bash
-curl http://127.0.0.1:8000/health
+curl http://127.0.0.1:18000/health
 ```
 
 and open:
 
 ```text
-http://127.0.0.1:8000/
+http://127.0.0.1:18000/
 ```
 
 ---
