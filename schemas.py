@@ -1,4 +1,4 @@
-"""Pydantic request models and response shaping for Agent Relay."""
+"""Pydantic request models and response shaping for Agent Relay v2."""
 
 from __future__ import annotations
 

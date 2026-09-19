@@ -1,4 +1,4 @@
-"""FastAPI routes for Agent Relay.
+"""FastAPI routes for Agent Relay v2.
 
 Persistence and SQLite transaction details live in :mod:`database` and
 :mod:`storage`; the deterministic local worker is in :mod:`worker`.
@@ -115,7 +115,7 @@ async def lifespan(_app: FastAPI):
             await recovery_task
 
 
-app = FastAPI(title="Agent Relay", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="Agent Relay v2", version="0.1.0", lifespan=lifespan)
 # ASGI transports used by small scripts do not always run lifespan handlers;
 # initialize the schema at import as well as during normal application startup.
 init_db()
