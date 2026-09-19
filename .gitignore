@@ -1,4 +1,7 @@
+# Local environment variables
+.env
 .venv
+
 .ruff_cache/
 *.db
 *.db-shm
@@ -8,7 +11,4 @@ __pycache__/
 *-credentials.json
 # Kubernetes secrets
 k8s/postgres-secret.yaml
-
-
-# Local environment variables
-.env
+k8s/.ipynb_checkpoints/
