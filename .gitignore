@@ -9,6 +9,8 @@
 __pycache__/
 .pytest_cache/
 *-credentials.json
+.ipynb_checkpoints/
+
 # Kubernetes secrets
 k8s/postgres-secret.yaml
 k8s/.ipynb_checkpoints/
