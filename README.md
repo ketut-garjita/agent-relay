@@ -712,9 +712,6 @@ agent-relay/
 │   ├── postgres-secret.yaml
 │   └── postgres-pvc.yaml
 │
-├── tests/
-│   └── ...
-│
 ├── main.py
 ├── database.py
 ├── storage.py
