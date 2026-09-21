@@ -8,6 +8,13 @@ The project started as a self-contained SQLite implementation and was extended t
 
 The core lifecycle is:
 
+```mermaid
+flowchart TD
+    A["Client<br/>/ API / Dashboard"] -->|HTTP| B["Agent Relay<br/>FastAPI"]
+    B --> C["PostgreSQL<br/>Queue / Attempts /<br/>Agents / Claims"]
+    C --> D["Worker<br/>Claim → Execute →<br/>Complete"]
+```
+
 ```text
                     ┌─────────────────────┐
                     │       Client        │
