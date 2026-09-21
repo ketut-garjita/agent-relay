@@ -15,33 +15,6 @@ flowchart TD
     C --> D["Worker<br/>Claim → Execute →<br/>Complete"]
 ```
 
-```text
-                    ┌─────────────────────┐
-                    │       Client        │
-                    │  / API / Dashboard  │
-                    └──────────┬──────────┘
-                               │ HTTP
-                               ▼
-                    ┌─────────────────────┐
-                    │     Agent Relay     │
-                    │      FastAPI        │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │     PostgreSQL      │
-                    │ Queue / Attempts /  │
-                    │ Agents / Claims     │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │       Worker        │
-                    │  Claim → Execute →  │
-                    │      Complete       │
-                    └─────────────────────┘
-```
-
 For the original local starter, SQLite remains supported.
 
 For the containerized deployment, PostgreSQL is used as the persistent database.
